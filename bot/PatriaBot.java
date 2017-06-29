@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,10 +31,10 @@ public final class PatriaBot extends TelegramLongPollingBot {
 
     private static PatriaBot instance;
 
-    private final List<OnScreenMovie> onScreenMoviesROEN = new ArrayList<>();
-    private final List<OnScreenMovie> onScreenMoviesRU = new ArrayList<>();
-    private final List<SoonMovie> soonMoviesROEN = new ArrayList<>();
-    private final List<SoonMovie> soonMoviesRU = new ArrayList<>();
+    private final List<OnScreenMovie> onScreenMoviesROEN = new CopyOnWriteArrayList<>();
+    private final List<OnScreenMovie> onScreenMoviesRU = new CopyOnWriteArrayList<>();
+    private final List<SoonMovie> soonMoviesROEN = new CopyOnWriteArrayList<>();
+    private final List<SoonMovie> soonMoviesRU = new CopyOnWriteArrayList<>();
 
     private final ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -132,10 +133,9 @@ public final class PatriaBot extends TelegramLongPollingBot {
         },1,1440, TimeUnit.MINUTES);
     }
 
-    //TODO
     @Override
     public String getBotToken() {
-        return "sKey";
+        return "sekretKey";
     }
 
     @Override
