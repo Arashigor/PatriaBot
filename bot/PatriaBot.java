@@ -21,10 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 public final class PatriaBot extends TelegramLongPollingBot {
@@ -133,25 +130,31 @@ public final class PatriaBot extends TelegramLongPollingBot {
         },1,1440, TimeUnit.MINUTES);
     }
 
+    //TODO
     @Override
     public String getBotToken() {
-        return "sekretKey";
+        return "replace";
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (update.getMessage().getText().equals("НА ЭКРАНАХ [RU]")) {
-                sendReply(onScreenMoviesRU,update);
-            } else if (update.getMessage().getText().equals("PE ECRANE [RO]")) {
-                sendReply(onScreenMoviesROEN,update);
-            } else if (update.getMessage().getText().equals("СКОРО [RU]")) {
-                sendReply(soonMoviesRU,update);
-            } else if (update.getMessage().getText().equals("ÎN CURÂND [RO]")) {
-                sendReply(soonMoviesROEN, update);
-            } else {
-                sendKeyBoard(update);
-            }
+            ExecutorService messageSender = new ThreadPoolExecutor(0,10,
+                    500,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64));
+
+            messageSender.submit(()->{
+                if (update.getMessage().getText().equals("НА ЭКРАНАХ [RU]")) {
+                    sendReply(onScreenMoviesRU,update);
+                } else if (update.getMessage().getText().equals("PE ECRANE [RO]")) {
+                    sendReply(onScreenMoviesROEN,update);
+                } else if (update.getMessage().getText().equals("СКОРО [RU]")) {
+                    sendReply(soonMoviesRU,update);
+                } else if (update.getMessage().getText().equals("ÎN CURÂND [RO]")) {
+                    sendReply(soonMoviesROEN, update);
+                } else {
+                    sendKeyBoard(update);
+                }
+            });
         }
     }
 
