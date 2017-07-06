@@ -92,7 +92,7 @@ public final class PatriaBot extends TelegramLongPollingBot {
                     Date premierDate = formatter.parse(premier);
                     Date currentDate = formatter.parse(formatter.format(Calendar.getInstance().getTime()));
 
-                    if (premierDate.compareTo(currentDate) < 0) {
+                    if (!(premierDate.compareTo(currentDate) > 0)) {
                         Elements tableRows = showTimesTable.select("tbody").select("tr");
                         StringBuilder showTimes = new StringBuilder();
                         for (Element tableData : tableRows.select("td")) {
