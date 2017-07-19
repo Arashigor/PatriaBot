@@ -11,7 +11,7 @@ public class OnScreenMovie extends Movie {
         this.showTimes = showTimes;
     }
 
-    public String getShowTimes() {
+    String getShowTimes() {
         return showTimes;
     }
 

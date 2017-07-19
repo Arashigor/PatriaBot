@@ -3,7 +3,7 @@ package movies;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-abstract class Movie implements Showable {
+public abstract class Movie {
     private String title;
     private Date premier;
     private String imgUrl;
@@ -14,17 +14,14 @@ abstract class Movie implements Showable {
         this.imgUrl = imgUrl;
     }
 
-    @Override
-    public String getTitle() {
+    String getTitle() {
         return title;
     }
 
-    @Override
-    public String getPremier() {
+    String getPremier() {
         return "Premiera: " + new SimpleDateFormat("dd.MM.yyyy").format(premier);
     }
 
-    @Override
     public String getImgUrl() {
         return imgUrl;
     }

@@ -33,6 +33,9 @@ public final class PatriaBot extends TelegramLongPollingBot {
     private final List<SoonMovie> soonMoviesROEN = new CopyOnWriteArrayList<>();
     private final List<SoonMovie> soonMoviesRU = new CopyOnWriteArrayList<>();
 
+    private static ExecutorService messageSender = new ThreadPoolExecutor(0,10,
+            500,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64));
+
     private final ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 
     public static PatriaBot getInstance() {
@@ -74,7 +77,6 @@ public final class PatriaBot extends TelegramLongPollingBot {
 
                 for (Element movie_container : movies_item.select("figure")) {
 
-
                     String title = movie_container.select("a").attr("title");
                     String movieUrl = movie_container.select("a").attr("href") +
                             "?mode=normal";
@@ -92,15 +94,14 @@ public final class PatriaBot extends TelegramLongPollingBot {
                     Date premierDate = formatter.parse(premier);
                     Date currentDate = formatter.parse(formatter.format(Calendar.getInstance().getTime()));
 
-                    if (premierDate.compareTo(currentDate) < 0) {
+                    if (!(premierDate.compareTo(currentDate) > 0)) {
                         Elements tableRows = showTimesTable.select("tbody").select("tr");
                         StringBuilder showTimes = new StringBuilder();
                         for (Element tableData : tableRows.select("td")) {
                             if (tableData.hasClass("cinema") && tableData.text().length() > 0) {
                                 showTimes.append("[");
                                 showTimes.append(tableData.text());
-                                showTimes.append("]");
-                                showTimes.append("\n");
+                                showTimes.append("]\n");
                             } else if (tableData.hasClass("hall")) {
                                 showTimes.append(tableData.text());
                                 showTimes.append(" ");
@@ -127,32 +128,26 @@ public final class PatriaBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
 
-        },1,1440, TimeUnit.MINUTES);
+        },1,770, TimeUnit.MINUTES);
     }
 
-    //TODO
     @Override
     public String getBotToken() {
-        return "replace";
+        return "";
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            ExecutorService messageSender = new ThreadPoolExecutor(0,10,
-                    500,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64));
-
             messageSender.submit(()->{
-                if (update.getMessage().getText().equals("НА ЭКРАНАХ [RU]")) {
-                    sendReply(onScreenMoviesRU,update);
-                } else if (update.getMessage().getText().equals("PE ECRANE [RO]")) {
-                    sendReply(onScreenMoviesROEN,update);
-                } else if (update.getMessage().getText().equals("СКОРО [RU]")) {
-                    sendReply(soonMoviesRU,update);
-                } else if (update.getMessage().getText().equals("ÎN CURÂND [RO]")) {
-                    sendReply(soonMoviesROEN, update);
-                } else {
-                    sendKeyBoard(update);
+                String message = update.getMessage().getText();
+
+                switch (message) {
+                    case "НА ЭКРАНАХ [RU]" : sendReply(onScreenMoviesRU,update);   break;
+                    case "PE ECRANE [RO]"  : sendReply(onScreenMoviesROEN,update); break;
+                    case "СКОРО [RU]"      : sendReply(soonMoviesRU,update);       break;
+                    case "ÎN CURÂND [RO]"  : sendReply(soonMoviesROEN, update);    break;
+                    default                : sendKeyBoard(update);
                 }
             });
         }
@@ -170,11 +165,11 @@ public final class PatriaBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendReply(List<? extends Showable> movies, Update update) {
+    private void sendReply(List<? extends Movie> movies, Update update) {
         SendMessage message = new SendMessage();
         SendPhoto sendPhotoRequest = new SendPhoto();
 
-        for (Showable movie : movies) {
+        for (Movie movie : movies) {
             sendPhotoRequest.setChatId(update.getMessage().getChatId())
                     .setPhoto(movie.getImgUrl());
             message.setChatId(update.getMessage().getChatId())
